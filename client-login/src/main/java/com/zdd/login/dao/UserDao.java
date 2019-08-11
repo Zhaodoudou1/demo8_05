@@ -5,6 +5,8 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 
 public interface UserDao extends JpaRepository<UserInfo,Integer> {
-    @Query(value = "SELECT * FROM base_user u WHERE u.`loginName` = ?1",nativeQuery = true)
-    public UserInfo findAllByUserName(String loginName);
+
+    @Query(value = "select * from base_user where loginName=?1",nativeQuery = true)
+    public UserInfo findByLoginName(String loginName);
+
 }

@@ -28,6 +28,11 @@ public class MenuInfo extends BaseAuditable {
     private String url;
 
     @Transient
+    private  String mids;
+
+    @Transient
+    private String[] ids;
+    @Transient
     private List<MenuInfo> menuInfoList;
 
 }

@@ -1,0 +1,25 @@
+# 配置端口号
+server:
+  port: 10011
+  servlet:
+    context-path: /
+spring:
+  application:
+    name: business-server
+  # 数据源
+  datasource:
+    url: jdbc:mysql://localhost:3306/1612c?characterEncoding=UTF-8
+    username: root
+    password: 123123
+    driver-class-name: com.mysql.jdbc.Driver
+mybatis:
+  mapper-locations: classpath:/mapper/*.xml
+  type-aliases-package: com.zdd.boot.entity
+
+
+
+# 分页
+pagehelper:
+  helperDialect: mysql
+  reasonable: true
+  supportMethodsArguments: true

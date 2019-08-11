@@ -7,7 +7,7 @@ import com.zdd.common.randm.VerifyCodeUtils;
 import com.zdd.common.util.MD5;
 import com.zdd.common.util.UID;
 import com.zdd.login.dao.UserDao;
-import com.zdd.login.server.UserServer;
+import com.zdd.login.server.CustomerService;
 import com.zdd.pojo.ResponseResult;
 import com.zdd.pojo.entity.UserInfo;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -30,7 +30,10 @@ public class LoginController {
     private RedisTemplate<String,String> redisTemplate;
 
     @Autowired
-    private UserServer userServer;
+    private CustomerService customerService;
+
+    @Autowired
+    private UserDao userDao;
     //滑动生成验证码
     //钩子
     @RequestMapping("getCode")
@@ -80,7 +83,7 @@ public class LoginController {
             return  responseResult;//测试验证码
         }
         if(map.get("loginname") != null){
-            UserInfo user = userServer.findUserByName(map.get("loginname").toString());
+            UserInfo user = customerService.getUserByLogin(map.get("loginname").toString());
             if (user != null){
                 //比对密码
                 String password = MD5.encryptPassword(map.get("password").toString(), "lcg");
@@ -95,14 +98,16 @@ public class LoginController {
 
                     //将token放入redis
                     redisTemplate.opsForValue().set("USERINFO"+user.getId().toString(),generateToken);//获取id的原因是 为了标识唯一
-
+                    System.out.println("user.getAuthmap()"+user.getAuthmap());
+                    redisTemplate.opsForHash().putAll("USERDATAAUTH"+user.getId().toString(),user.getAuthmap());
                     //设置token过期时间
                     redisTemplate.expire("USERINFO"+user.getId().toString(),600,TimeUnit.MINUTES);
 
-                    responseResult.setResult(user);
-                    responseResult.setCode(200);
+                        responseResult.setResult(user);
+                        responseResult.setCode(200);
                     responseResult.setSuccess("登陆成功");
                     System.out.println(responseResult.getCode()+"getcode");
+                    System.out.println(user+"用户信息=============");
                     return responseResult;
                 }else{
                     throw  new LoginException("用户名或密码错误");
@@ -113,6 +118,20 @@ public class LoginController {
         }else{
             throw  new LoginException("用户名或密码错误");
         }
+    }
 
+
+    @RequestMapping("loginout")
+    public ResponseResult loginOut(String loginName){
+        //根据用户名获取用户信息
+        UserInfo user = userDao.findByLoginName(loginName);
+        System.out.println(user);
+        if(user!=null){
+            redisTemplate.delete("USERDATAAUTH"+user.getId().toString());
+            redisTemplate.delete("USERINFO"+user.getId());
+        }
+        ResponseResult responseResult = ResponseResult.getResponseResult ();
+        responseResult.setSuccess ( "ok" );
+        return responseResult;
     }
 }

@@ -1,0 +1,119 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.zdd.business.dao.UserMapperDao">
+    <select id="findAll" resultType="com.zdd.pojo.entity.UserInfo">
+        SELECT u.*,GROUP_CONCAT(e.`roleName`) roleNames FROM base_user u
+                               LEFT JOIN base_user_role r ON u.`id`=r.`userId`
+                               LEFT JOIN base_role e ON r.`roleId`=e.`id`
+                              <where>
+
+                                  <if test="likeUserName != null and likeUserName !='' ">
+                                  and u.`userName` LIKE  concat("%",#{likeUserName},"%")
+                              </if>
+                                  <if test="sex != null and sex !=''  ">
+                                      and   u.sex like concat("%",#{sex},"%")
+                                  </if>
+                                  <if test="end != null and end != ''">
+                                      and u.createTime  <![CDATA[<=]]> #{end}
+                                  </if>
+                                  <if test="start !=null and start !='' ">
+                                      and u.createTime >= #{start}
+                                  </if>
+                                  <if test="start != null and start != null and end != null and end != ''" >
+                                      and  u.createTime between #{start} and #{end}
+                                  </if>
+                              </where>
+
+                               GROUP BY u.`id`
+    </select>
+    <!-- @Param("likeUserName") String likeUserName,@Param("start")  String start,@Param("end")  String end, @Param("sex") String sex);-->
+
+    <delete id="deleteOne">
+        delete from base_user where id = #{id}
+    </delete>
+
+
+    <update id="updateOne">
+        UPDATE base_user u SET u.`userName` =#{user.userName},
+                               u.sex = #{user.sex},
+                               u.loginName = #{user.loginName},
+                               u.password = #{user.password},
+                               u.tel = #{user.tel},
+                               u.imgUrl = #{user.imgUrl}
+        where u.id = #{user.id}
+    </update>
+
+    <insert id="insertOneUser">
+        insert  into base_user(id,userName,loginName,password,sex,tel,imgUrl) values(#{user.id},#{user.userName},#{user.loginName},#{user.password},#{user.sex}, #{user.tel},#{user.imgUrl})
+    </insert>
+
+    <select id="selectAllRole" resultType="com.zdd.pojo.entity.RoleInfo">
+          select * from `base_role`
+    </select>
+
+    <!--角色 -->
+    <select id="selectAllRoleAndMenu" resultType="com.zdd.pojo.entity.RoleInfo">
+        SELECT *FROM base_role
+    </select>
+
+    <select id="selectAllRoleAndMenuMids" resultType="com.zdd.pojo.entity.RoleInfo">
+        SELECT GROUP_CONCAT(m.`id`)mids FROM base_role r
+                          LEFT JOIN base_role_menu b ON r.`id`=b.`roleId`
+                          LEFT JOIN base_menu m ON b.`menuId` = m.`id`
+        WHERE m.`leval`=4 and     r.id =  #{id}
+        GROUP BY r.`id`
+    </select>
+
+    <insert id="insertRoleAndUserCertont">
+        INSERT INTO base_user_role(roleId,userId) VALUES(#{roleValue},#{id})
+    </insert>
+
+    <delete id="deleteOneRole">
+        delete from `base_role` where id = #{id}
+    </delete>
+
+    <delete id="deleteOneRoleCentre">
+        DELETE FROM base_role_menu  WHERE base_role_menu.`roleId` = #{id}
+    </delete>
+
+    <insert id="insertOneRole">
+            insert into `base_role`(roleName,miaoShu) values(#{role.roleName},#{role.miaoShu})
+    </insert>
+
+    <delete id="deleteRoleAndMenuAndCentre">
+        DELETE	 FROM base_role_menu  WHERE base_role_menu.`roleId` = #{id}
+    </delete>
+    <insert id="insertRoleAndMenuAndCentre">
+        insert into base_role_menu(id,roleId,menuId) values
+        <foreach item="mids"  collection="mids"  separator=",">
+            (null,#{id},#{mids})
+        </foreach>
+    </insert>
+
+    <select id="findMenu" resultType="com.zdd.pojo.entity.MenuInfo">
+        SELECT * FROM base_menu m WHERE m.`leval` =#{leave}
+    </select>
+
+    <select id="getChildMenu"   resultType="com.zdd.pojo.entity.MenuInfo">
+        SELECT * FROM base_menu m WHERE m.`leval` =#{leave} AND m.`parentId`=#{parentid}
+    </select>
+
+    <insert id="insertMenu">
+        INSERT INTO base_menu(menuName,url,leval,parentId) values(#{menuName},#{url},#{leval},#{parentid})
+    </insert>
+
+    <!--updateMenu(@Param("id") long id, @Param("menuName") String menuName, @Param("url") String url, @Param("leval")int leval); -->
+    <update id="updateMenu">
+        UPDATE base_menu m SET m.menuName = #{menuName},
+                              m.url = #{url},
+                               m.leval=#{leval}
+              where m.id  = #{id}
+    </update>
+
+    <delete id="deleteMenu">
+        delete from base_menu where id = #{id}
+    </delete>
+    <delete id="deleteMenuCentre">
+        delete from base_role_menu where menuId = #{id}
+    </delete>
+</mapper>
