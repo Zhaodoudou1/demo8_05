@@ -49,4 +49,8 @@ public interface UserMapperDao {
     void deleteMenu(@Param("id") long id);
 
     void deleteMenuCentre(@Param("id")long id);
+
+    UserInfo findRoleInUser(@Param("id") Long id);
+
+    RoleInfo findMenuInRole(@Param("id") long id);
 }

@@ -171,4 +171,14 @@ public class CustomerService {
     public void deleteMenuCentre(long id) {
         userMapperDao.deleteMenuCentre(id);
     }
+
+
+    public UserInfo findRoleInUser(Long id) {
+        return userMapperDao.findRoleInUser(id);
+    }
+
+    public RoleInfo findMenuInRole(long id) {
+
+        return userMapperDao.findMenuInRole(id);
+    }
 }

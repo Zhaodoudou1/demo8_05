@@ -122,6 +122,7 @@ public class LoginController {
 
 
     @RequestMapping("loginout")
+    @ResponseBody
     public ResponseResult loginOut(String loginName){
         //根据用户名获取用户信息
         UserInfo user = userDao.findByLoginName(loginName);
@@ -132,6 +133,21 @@ public class LoginController {
         }
         ResponseResult responseResult = ResponseResult.getResponseResult ();
         responseResult.setSuccess ( "ok" );
+        return responseResult;
+    }
+
+    @RequestMapping("selectUserName")
+    @ResponseBody
+    public ResponseResult selectUserName(@RequestBody String loginName){
+        System.out.println("账号验证:"+loginName);
+        ResponseResult responseResult = ResponseResult.getResponseResult();
+        UserInfo userInfo = customerService.selectUserName(loginName);
+        if(userInfo != null){
+            responseResult.setCode(500);
+        }else{
+            responseResult.setCode(200);
+        }
+
         return responseResult;
     }
 }

@@ -113,7 +113,22 @@
     <delete id="deleteMenu">
         delete from base_menu where id = #{id}
     </delete>
+
     <delete id="deleteMenuCentre">
         delete from base_role_menu where menuId = #{id}
     </delete>
+
+    <!-- 删除角色时候查询该角色是否还在关联这用户-->
+    <select id="findRoleInUser" resultType="com.zdd.pojo.entity.UserInfo">
+        SELECT u.userName userName FROM base_user u LEFT JOIN base_user_role r ON u.`id`=r.`userId`
+                        LEFT JOIN base_role e ON e.`id` = r.`roleId` WHERE e.`id`=#{id}
+    </select>
+
+
+
+    <!-- 删除权限时候查询该权限是否还在关联这角色-->
+    <select id="findMenuInRole"  resultType="com.zdd.pojo.entity.RoleInfo">
+        SELECT e.`roleName` roleName FROM base_menu m LEFT JOIN base_user_role r ON m.`id`=r.`userId`
+                                  LEFT JOIN base_role e ON e.`id` = r.`roleId` WHERE m.`id`=#{id}
+    </select>
 </mapper>

@@ -6,6 +6,7 @@ import com.zdd.login.dao.UserDao;
 import com.zdd.pojo.entity.MenuInfo;
 import com.zdd.pojo.entity.RoleInfo;
 import com.zdd.pojo.entity.UserInfo;
+import org.apache.catalina.User;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -85,5 +86,10 @@ public class CustomerService {
             }
         }
 
+    }
+
+    public UserInfo selectUserName(String loginName) {
+
+        return userDao.findByLoginName(loginName);
     }
 }
