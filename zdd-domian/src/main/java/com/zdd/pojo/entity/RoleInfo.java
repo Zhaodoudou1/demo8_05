@@ -19,6 +19,12 @@ public class RoleInfo extends BaseAuditable {
     @Column(name = "miaoShu")
     private String miaoShu;
 
+    @Column(name = "parentid")
+    private Long parentid;//创建角色时该角色的id
+
+    @Column(name = "leval")
+    private  int leval;//角色级别
+
     @Transient
     private String menus;
 

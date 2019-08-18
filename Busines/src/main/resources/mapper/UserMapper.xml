@@ -76,9 +76,6 @@
         DELETE FROM base_role_menu  WHERE base_role_menu.`roleId` = #{id}
     </delete>
 
-    <insert id="insertOneRole">
-            insert into `base_role`(roleName,miaoShu) values(#{role.roleName},#{role.miaoShu})
-    </insert>
 
     <delete id="deleteRoleAndMenuAndCentre">
         DELETE	 FROM base_role_menu  WHERE base_role_menu.`roleId` = #{id}
@@ -90,10 +87,26 @@
         </foreach>
     </insert>
 
+
+    <!--跟角色id 查询所有拥有的权限 -->
+    <select id="findMenuByRoleId"  resultType="com.zdd.pojo.entity.MenuInfo">
+        SELECT n.* FROM base_role r LEFT JOIN base_role_menu m ON r.id = m.roleId
+                                    LEFT JOIN base_menu n ON m.menuId = n.id WHERE r.id = #{roleid} AND n.leval = #{leval}
+    </select>
+
+    <!--与上关联进行递归查询/传入roleid下的角色 -->
+    <!-- @Param("leval") int i,@Param("parentid") Long id,@Param("roleid") Long roleids-->
+    <select id="getfindChildMenuByRoleId"  resultType="com.zdd.pojo.entity.MenuInfo">
+        SELECT n.* FROM base_role r LEFT JOIN base_role_menu m ON r.id = m.roleId
+                                    LEFT JOIN base_menu n ON m.menuId = n.id WHERE r.id = #{roleid} AND n.leval = #{leval} AND n.parentId = #{parentid}
+    </select>
+
+    <!--全查权限 等级为1 -->
     <select id="findMenu" resultType="com.zdd.pojo.entity.MenuInfo">
         SELECT * FROM base_menu m WHERE m.`leval` =#{leave}
     </select>
 
+    <!-- 与上sql关联/进行递归查询-->
     <select id="getChildMenu"   resultType="com.zdd.pojo.entity.MenuInfo">
         SELECT * FROM base_menu m WHERE m.`leval` =#{leave} AND m.`parentId`=#{parentid}
     </select>
@@ -128,7 +141,29 @@
 
     <!-- 删除权限时候查询该权限是否还在关联这角色-->
     <select id="findMenuInRole"  resultType="com.zdd.pojo.entity.RoleInfo">
-        SELECT e.`roleName` roleName FROM base_menu m LEFT JOIN base_user_role r ON m.`id`=r.`userId`
+        SELECT e.`roleName`  roleName FROM base_menu m LEFT JOIN base_user_role r ON m.`id`=r.`userId`
                                   LEFT JOIN base_role e ON e.`id` = r.`roleId` WHERE m.`id`=#{id}
     </select>
+    
+    <!--这是一个用户和角色关联查询的sql、主要查询角色的等级，id，名称 -->
+    <select id="findRoleByUserId" resultType="com.zdd.pojo.entity.UserInfo">
+        SELECT o.`id` roleids,o.`roleName`  roleNames,o.`leval` leval FROM base_user u
+              LEFT JOIN base_user_role r ON u.`id` = r.`userId`
+              LEFT JOIN base_role o ON r.`roleId` = o.`id` WHERE u.`id` =#{id}
+    </select>
+    <!--insertOneRole(@Param("roleName") String roleName,@Param("roleName") String miaoShu,@Param("leval") int leval,@Param("roleids") long roleids); -->
+    <insert id="insertOneRole">
+        insert into `base_role`(roleName,miaoShu,leval,parentid) values(#{roleName},#{miaoShu},#{leval}+1,#{parentid})
+    </insert>
+
+    <!--找回密码-->
+    <select id="findUserByLoginName" resultType="com.zdd.pojo.entity.UserInfo">
+          select * from base_user where loginName = #{loginName}
+    </select>
+    <select id="findUserByEmail" resultType="com.zdd.pojo.entity.UserInfo">
+        select * from base_user where email = #{email}
+    </select>
+    <update id="updatePasswordByLoginName">
+        update base_user set password = #{password} where loginName = #{loginName}
+    </update>
 </mapper>

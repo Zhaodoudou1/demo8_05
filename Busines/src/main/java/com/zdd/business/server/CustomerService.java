@@ -8,6 +8,7 @@ import com.zdd.pojo.entity.MenuInfo;
 import com.zdd.pojo.entity.RoleInfo;
 import com.zdd.pojo.entity.UserInfo;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Component;
 
 import java.awt.*;
@@ -22,6 +23,8 @@ public class CustomerService {
     @Autowired
     private UserMapperDao userMapperDao;
 
+    @Autowired
+    private RedisTemplate<String,String> redisTemplate;
 
     /**
      * 查询所有用户
@@ -33,12 +36,17 @@ public class CustomerService {
      * @param sex
      * @return
      */
-    public PageInfo<UserInfo> findAll(Integer pageNum, Integer pageSize, String likeUserName, String start, String end, String sex){
+    public PageInfo<UserInfo> findAll(Integer pageNum, Integer pageSize, String likeUserName, String start, String end, String sex,String userid){
         PageHelper.startPage(pageNum,pageSize);
 
         System.out.println("page"+pageNum+"pageSize"+pageSize+"like="+likeUserName+"start="+start+"end="+end+"sex="+sex);
-        List<UserInfo> all = userMapperDao.findAll(likeUserName,start,end,sex);
+        List<UserInfo> all = userMapperDao.findAll(likeUserName,start,end,sex);;
+        System.out.println("遍历查询");
+        all.forEach(u->{
+            System.out.println(u);
+        });
         PageInfo<UserInfo> userInfoPageInfo = new PageInfo<>(all);
+
         return userInfoPageInfo;
     }
 
@@ -96,29 +104,44 @@ public class CustomerService {
     }
 
 
+
+
     /**
      * 递归查询角色
      * @return
      */
-    public List<MenuInfo> findMenu() {
-        List<MenuInfo> menu =  userMapperDao.findMenu(1);
-        this.getOtherMenu(menu);
+    public List<MenuInfo> findMenu(Long roleids) {
+        List<MenuInfo> menu =  userMapperDao.findMenuByRoleId(roleids,1);
+
+        this.getOtherMenu(menu,roleids);
         return  menu;
 
     }
 
-
-    public void getOtherMenu(List<MenuInfo> menu){
+    public void getOtherMenu(List<MenuInfo> menu,Long roleids){
         for (MenuInfo  menuInfo: menu) {
-            List<MenuInfo> childMenu = userMapperDao.getChildMenu(menuInfo.getLeval() + 1, menuInfo.getId());
+            //@Param("leval") int i,@Param("parentid") Long id,@Param("") Long roleids
+            List<MenuInfo> childMenu = userMapperDao.getfindChildMenuByRoleId(menuInfo.getLeval() + 1, menuInfo.getId(),roleids);
 
             menuInfo.setMenuInfoList(childMenu);
 
             if(childMenu.size() > 0){
-                this.getOtherMenu(childMenu);
+                this.getOtherMenu(childMenu,roleids);
             }
         }
     }
+
+
+
+
+
+
+
+
+
+
+
+
 
     public void insertRoleAndMenuAndCentre(String[] mids, long id) {
         userMapperDao.insertRoleAndMenuAndCentre(mids,id);
@@ -132,6 +155,8 @@ public class CustomerService {
         userMapperDao.deleteRoleAndMenuAndCentre(id);
     }
 
+
+    //权限管理的全查
     public List<MenuInfo> test() {
         List<MenuInfo> menu =  userMapperDao.findMenu(1);
         this.getOther(menu);
@@ -180,5 +205,26 @@ public class CustomerService {
     public RoleInfo findMenuInRole(long id) {
 
         return userMapperDao.findMenuInRole(id);
+    }
+
+    public UserInfo findRoleByUserId(long userid) {
+
+        return userMapperDao.findRoleByUserId(userid);
+    }
+
+    public void insertOneRole(String roleName, String miaoShu, int leval, long roleids) {
+        userMapperDao.insertOneRole(roleName,miaoShu,leval,roleids);
+    }
+
+    public UserInfo findUserByLoginName(String username) {
+        return userMapperDao.findUserByLoginName(username);
+    }
+
+    public UserInfo findUserByEmail(String email) {
+        return  userMapperDao.findUserByEmail(email);
+    }
+
+    public void updatePasswordByLoginName(String username, String password) {
+        userMapperDao.updatePasswordByLoginName(username,password);
     }
 }

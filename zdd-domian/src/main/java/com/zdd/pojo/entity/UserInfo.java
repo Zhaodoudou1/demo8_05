@@ -43,7 +43,16 @@ public class UserInfo extends BaseAuditable {
     String ids;
 
     @Transient
-    private String roleNames;
+    private String roleids;//接收角色id
+
+    @Transient
+    private String roleNames;//接收角色名称
+
+    @Transient
+    private int leval;
+
+    @Transient
+    private String[]  quanxian;
 
     @Transient
     private List<MenuInfo> listMenuInfo;
@@ -54,4 +63,12 @@ public class UserInfo extends BaseAuditable {
     @Transient
     private Map<String,String> authmap;
 
+    @Transient
+     private Object[] LoginKeys;
+
+    @Transient
+    private String email;
+
+    @Transient
+    private  Object[] LoginValues;
 }

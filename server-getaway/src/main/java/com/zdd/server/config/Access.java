@@ -30,7 +30,7 @@ public class Access {
 
                 headers.add("Access-Control-Allow-Methods","*");
 
-                headers.add("Access-Control-Allow-Origin","http://localhost:8080");
+                headers.add("Access-Control-Allow-Origin","https://localhost:8080");
 
                 headers.add("Access-Control-Expose-Headers","*");
 

@@ -53,4 +53,18 @@ public interface UserMapperDao {
     UserInfo findRoleInUser(@Param("id") Long id);
 
     RoleInfo findMenuInRole(@Param("id") long id);
+
+    UserInfo findRoleByUserId(@Param("id") long userid);
+
+    void insertOneRole(@Param("roleName") String roleName,@Param("miaoShu") String miaoShu,@Param("leval") int leval,@Param("parentid") long roleids);
+
+    List<MenuInfo> findMenuByRoleId(@Param("roleid")Long roleids,@Param("leval") int i);
+
+    List<MenuInfo> getfindChildMenuByRoleId(@Param("leval") int i,@Param("parentid") Long id,@Param("roleid") Long roleids);
+
+    UserInfo findUserByLoginName(@Param("loginName") String username);
+
+    UserInfo findUserByEmail(@Param("email") String email);
+
+    void updatePasswordByLoginName(@Param("loginName") String username,@Param("password") String password);
 }

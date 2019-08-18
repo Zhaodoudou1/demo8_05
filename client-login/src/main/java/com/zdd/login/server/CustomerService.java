@@ -1,5 +1,6 @@
 package com.zdd.login.server;
 
+import com.zdd.login.config.HttpUtils;
 import com.zdd.login.dao.MenuDao;
 import com.zdd.login.dao.RoleDao;
 import com.zdd.login.dao.UserDao;
@@ -7,12 +8,11 @@ import com.zdd.pojo.entity.MenuInfo;
 import com.zdd.pojo.entity.RoleInfo;
 import com.zdd.pojo.entity.UserInfo;
 import org.apache.catalina.User;
+import org.apache.http.HttpResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import java.util.Hashtable;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 @Component
 public class CustomerService {
@@ -91,5 +91,56 @@ public class CustomerService {
     public UserInfo selectUserName(String loginName) {
 
         return userDao.findByLoginName(loginName);
+    }
+
+
+    public String getAuthcode(String tel) {
+        String host = "http://dingxin.market.alicloudapi.com";
+        String path = "/dx/sendSms";
+        String method = "POST";
+        String appcode = "80f9128752cf4e40a7a773c6f07bdfbc";
+        Map<String, String> headers = new HashMap<String, String>();
+        //最后在header中的格式(中间是英文空格)为Authorization:APPCODE 83359fd73fe94948385f570e3c139105
+        headers.put("Authorization", "APPCODE " + appcode);
+        Map<String, String> querys = new HashMap<String, String>();
+        querys.put("mobile", tel);
+        String randomString = this.getRandomString();
+        querys.put("param", "code:"+randomString);
+        querys.put("tpl_id", "TP1711063");
+        Map<String, String> bodys = new HashMap<String, String>();
+        try {
+            /**
+             * 重要提示如下:
+             * HttpUtils请从
+             * https://github.com/aliyun/api-gateway-demo-sign-java/blob/master/src/main/java/com/aliyun/api/gateway/demo/util/HttpUtils.java
+             * 下载
+             *
+             * 相应的依赖请参照
+             * https://github.com/aliyun/api-gateway-demo-sign-java/blob/master/pom.xml
+             */
+            HttpResponse response = HttpUtils.doPost(host, path, method, headers, querys, bodys);
+            /* System.out.println("response.toString:"+response.toString());*/
+            //获取response的body
+            /*System.out.println("EntityUtils.toString:"+EntityUtils.toString(response.getEntity()));*/
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return randomString;
+    }
+
+    public String getRandomString(){
+        Random random = new Random();
+        String result="";
+        for (int i=0;i<6;i++)
+        {
+            result+=random.nextInt(10);
+        }
+
+        return result;
+    }
+
+    public UserInfo selPhone(String tel) {
+
+        return userDao.selPhone(tel);
     }
 }

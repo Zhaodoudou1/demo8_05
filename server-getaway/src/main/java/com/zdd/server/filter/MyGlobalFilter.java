@@ -71,7 +71,7 @@ public class MyGlobalFilter implements GlobalFilter {
                 //如果不报错说明没有失效,重新加密登录信息
                 String token = JWTUtils.generateToken(jsonObject.toJSONString());
                 //存储到响应头中
-                response.getHeaders().set("token",token);
+                //response.getHeaders().set("token",token);
             }catch (JwtException e){
                 e.printStackTrace();
                 System.out.println("catch");
